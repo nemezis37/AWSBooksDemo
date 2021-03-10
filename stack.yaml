@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  Book:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: ISBN
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ISBN
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 5
