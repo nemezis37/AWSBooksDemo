@@ -1,14 +1,22 @@
 AWSTemplateFormatVersion: 2010-09-09
 Resources:
-  Book:
-    Type: 'AWS::DynamoDB::Table'
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
     Properties:
+      TableName: AuthorsTable_prod
       AttributeDefinitions:
-        - AttributeName: ISBN
-          AttributeType: S
+        - AttributeName: "AuthorName"
+          AttributeType: "S"
+        - AttributeName: "BookTitle"
+          AttributeType: "S"
       KeySchema:
-        - AttributeName: ISBN
-          KeyType: HASH
+        - AttributeName: "AuthorName"
+          KeyType: "HASH"
+        - AttributeName: "BookTitle"
+          KeyType: "RANGE"
+      TimeToLiveSpecification:
+        AttributeName: "ExpirationTime"
+        Enabled: true
       ProvisionedThroughput:
-        ReadCapacityUnits: 10
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
