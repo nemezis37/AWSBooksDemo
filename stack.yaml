@@ -471,7 +471,7 @@ Resources:
 
     CreationPolicy:
       ResourceSignal:
-        Timeout: PT5M
+        Timeout: PT15M
   WebServerSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
