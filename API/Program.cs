@@ -19,7 +19,7 @@ namespace API
             try
             {
                 var context = services.GetRequiredService<IAmazonDynamoDB>();
-                await InitTable.InitTableOnCreate(context);
+               // await InitTable.InitTableOnCreate(context);
             }
             catch(Exception ex)
             {

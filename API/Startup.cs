@@ -31,9 +31,10 @@ namespace API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
             });
             services.AddMediatR(typeof(Create.Handler).Assembly);
-            services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient(new AmazonDynamoDBConfig {ServiceURL = "http://localhost:8000"}));
+            //services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient(new AmazonDynamoDBConfig {ServiceURL = "http://localhost:8000"}));
+            services.AddAWSService<IAmazonDynamoDB>();
             services.AddTransient<IDynamoDBContext, DynamoDBContext>();
-            //services.AddAWSService<IAmazonDynamoDB>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
