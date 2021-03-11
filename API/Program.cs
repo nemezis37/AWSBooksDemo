@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +35,7 @@ namespace API
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.UseKestrel(o => { o.Listen(IPAddress.Any, 80); });
                     webBuilder.UseStartup<Startup>();
                 });
     }
