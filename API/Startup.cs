@@ -2,6 +2,7 @@ using System;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Extensions.NETCore.Setup;
+using Amazon.SQS;
 using Application.Books;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -37,6 +38,7 @@ namespace API
             Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", Configuration["AWS:SecretKey"]);
             Environment.SetEnvironmentVariable("AWS_REGION", Configuration["AWS:Region"]);
             services.AddAWSService<IAmazonDynamoDB>();
+            services.AddAWSService<IAmazonSQS>();
             services.AddTransient<IDynamoDBContext, DynamoDBContext>();
             
         }
