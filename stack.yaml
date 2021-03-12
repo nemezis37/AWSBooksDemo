@@ -1,28 +1,20 @@
-#AWSTemplateFormatVersion: 2010-09-09
-#Resources:
-#  BookTable:
-#    Type: AWS::DynamoDB::Table
-#    Properties:
-#      TableName: Book
-#      AttributeDefinitions:
-#        - AttributeName: "ISBN"
-#          AttributeType: "S"
-#      KeySchema:
-#        - AttributeName: "ISBN"
-#          KeyType: "HASH"
-#      ProvisionedThroughput:
-#        ReadCapacityUnits: "5"
-#        WriteCapacityUnits: "5"
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: 'AWS::EC2::KeyPair::KeyName'
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Default: ec2ssh
+  AWS_SECRET_ACCESS_KEY:
+    Description: AWS_SECRET_ACCESS_KEY
+    Type: String
+  AWS_DYNAMO_SECRET_ACCESS_KEY:
+    Description: AWS_DYNAMO_SECRET_ACCESS_KEY
+    Type: String
   InstanceType:
     Description: WebServer EC2 instance type
     Type: String
-    Default: t2.small
+    Default: t2.micro
     AllowedValues:
       - t1.micro
       - t2.nano
@@ -353,7 +345,7 @@ Mappings:
       HVM64: ami-0a52e8a6018e92bb0
       HVMG2: NOT_SUPPORTED
     us-east-1:
-      HVM64: ami-032930428bf1abbff
+      HVM64: ami-038f1ca1bd58a5790
       HVMG2: ami-0aeb704d503081ea6
     us-east-2:
       HVM64: ami-027cab9a7bf0155df
@@ -376,9 +368,7 @@ Resources:
           packages:
             yum:
               git: []
-              httpd: []
-              dotnet-sdk-5.0: []              
-          files:           
+          files:
             /etc/cfn/cfn-hup.conf:
               content: !Join 
                 - ''
@@ -420,15 +410,12 @@ Resources:
               group: root
           services:
             sysvinit:
-              httpd:
-                enabled: 'true'
-                ensureRunning: 'true'
               cfn-hup:
                 enabled: 'true'
                 ensureRunning: 'true'
                 files:
                   - /etc/cfn/cfn-hup.conf
-                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf        
+                  - /etc/cfn/hooks.d/cfn-auto-reloader.conf
     Properties:
       ImageId: !FindInMap 
         - AWSRegionArch2AMI
@@ -469,6 +456,33 @@ Resources:
             - !Ref 'AWS::Region'
             - |+
 
+            - >
+              rpm -Uvh
+              https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
+            - |
+              git clone https://github.com/nemezis37/AWSBooksDemo.git
+            - sed -i 's/DynamoDBBookAWSAccessKey/
+            - !Ref AWS_DYNAMO_ACCESS_KEY_ID
+            - |
+              /g' /AWSBooksDemo/API/appsettings.json
+            - sed -i 's/DynamoDBBookAWSSecretKey/
+            - !Ref AWS_DYNAMO_SECRET_ACCESS_KEY
+            - |
+              /g' /AWSBooksDemo/API/appsettings.json
+            - sed -i 's/AWSRegion/
+            - !Ref 'AWS::Region'
+            - |
+              /g' /AWSBooksDemo/API/appsettings.json
+            - |
+              yum install dotnet-sdk-5.0 -y
+            - |
+              cd /AWSBooksDemo/API
+            - |
+              . /etc/profile.d/dotnet-cli-tools-bin-path.sh
+            - |
+              export DOTNET_CLI_HOME='/tmp'
+            - |
+              dotnet run 
     CreationPolicy:
       ResourceSignal:
         Timeout: PT15M
@@ -485,6 +499,19 @@ Resources:
           FromPort: '22'
           ToPort: '22'
           CidrIp: 0.0.0.0/0
+  BookTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Book
+      AttributeDefinitions:
+        - AttributeName: ISBN
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ISBN
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
 Outputs:
   WebsiteURL:
     Description: URL for newly created LAMP stack
@@ -494,4 +521,3 @@ Outputs:
         - !GetAtt 
           - WebServerInstance
           - PublicDnsName
-
