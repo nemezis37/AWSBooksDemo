@@ -57,5 +57,5 @@ jobs:
            KeyName=ec2ssh,
            InstanceType=t2.micro,
            AWSDynamoAccessKeyId=${{ secrets.AWS_DYNAMO_ACCESS_KEY_ID }},
-           AWSDynamoSecretKey==${{ secrets.AWS_DYNAMO_SECRET_ACCESS_KEY }}
+           AWSDynamoSecretKey=${{ secrets.AWS_DYNAMO_SECRET_ACCESS_KEY }}
      
