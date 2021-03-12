@@ -31,7 +31,7 @@ namespace API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
             });
             services.AddMediatR(typeof(Create.Handler).Assembly);
-            //services.AddSingleton<IAmazonDynamoDB>(_ => new AmazonDynamoDBClient(new AmazonDynamoDBConfig {ServiceURL = "http://localhost:8000"}));
+            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             services.AddAWSService<IAmazonDynamoDB>();
             services.AddTransient<IDynamoDBContext, DynamoDBContext>();
             
