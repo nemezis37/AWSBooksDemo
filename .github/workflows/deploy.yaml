@@ -1,12 +1,3 @@
-# This GitHub Actions workflow runs on manual trigger on a branch of a
-# repository, and configures the React app in the AWS Amplify Console.
-#
-# First, the GitHub Action deploys the 'stack.yaml' AWS CloudFormation stack
-# to your AWS Account. This stack configures the React app in the AWS Amplify Console.
-#
-# Then, you need to trigger a first build in the AWS Amplify Console to
-# fully configure it.
-
 on:
   workflow_dispatch:
     inputs:
@@ -18,9 +9,6 @@ on:
 name: Deploy
 
 jobs:
-  # Deploy the React app to AWS Amplify Console.
-  # This job will run on every code change to the master branch, but will only deploy
-  # changes if the infrastructure CloudFormation template in the repository changes.
   amplify:
     name: Deploy to Amplify Console
     runs-on: ubuntu-latest
@@ -46,7 +34,7 @@ jobs:
         ENVIRONMENT=`echo $REPO | tr "/" "-"`
         echo "Environment name: $ENVIRONMENT"
         echo "::set-output name=environment::$ENVIRONMENT"
-    - name: Deploy to Amplify Console with CloudFormation
+    - name: Deploy with CloudFormation
       id: amplify-stack
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
