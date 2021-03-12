@@ -5,8 +5,8 @@ Parameters:
     Type: 'AWS::EC2::KeyPair::KeyName'
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Default: ec2ssh
-  AWS_SECRET_ACCESS_KEY:
-    Description: AWS_SECRET_ACCESS_KEY
+  AWS_DYNAMO_ACCESS_KEY_ID:
+    Description: AWS_DYNAMO_ACCESS_KEY_ID
     Type: String
   AWS_DYNAMO_SECRET_ACCESS_KEY:
     Description: AWS_DYNAMO_SECRET_ACCESS_KEY

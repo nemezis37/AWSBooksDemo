@@ -56,6 +56,6 @@ jobs:
         parameter-overrides: >-
            KeyName=ec2ssh,
            InstanceType=t2.micro,
-           AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }},
+           AWS_DYNAMO_ACCESS_KEY_ID=${{ secrets.AWS_DYNAMO_ACCESS_KEY_ID }},
            AWS_DYNAMO_SECRET_ACCESS_KEY==${{ secrets.AWS_DYNAMO_SECRET_ACCESS_KEY }}
      
