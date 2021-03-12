@@ -5,11 +5,11 @@ Parameters:
     Type: 'AWS::EC2::KeyPair::KeyName'
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Default: ec2ssh
-  AWS_DYNAMO_ACCESS_KEY_ID:
-    Description: AWS_DYNAMO_ACCESS_KEY_ID
+  AWSDynamoAccessKeyId:
+    Description: AWSDynamoAccessKeyId
     Type: String
-  AWS_DYNAMO_SECRET_ACCESS_KEY:
-    Description: AWS_DYNAMO_SECRET_ACCESS_KEY
+  AWSDynamoSecretKey:
+    Description: AWSDynamoSecretKey
     Type: String
   InstanceType:
     Description: WebServer EC2 instance type
@@ -462,11 +462,11 @@ Resources:
             - |
               git clone https://github.com/nemezis37/AWSBooksDemo.git
             - sed -i 's/DynamoDBBookAWSAccessKey/
-            - !Ref AWS_DYNAMO_ACCESS_KEY_ID
+            - !Ref AWSDynamoAccessKeyId
             - |
               /g' /AWSBooksDemo/API/appsettings.json
             - sed -i 's/DynamoDBBookAWSSecretKey/
-            - !Ref AWS_DYNAMO_SECRET_ACCESS_KEY
+            - !Ref AWSDynamoSecretKey
             - |
               /g' /AWSBooksDemo/API/appsettings.json
             - sed -i 's/AWSRegion/
