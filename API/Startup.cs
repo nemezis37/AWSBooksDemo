@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SQS;
 using Application.Books;
+using Application.Common.Behavior;
 using Infrastructure.Config;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -34,6 +35,9 @@ namespace API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
             });
             services.AddMediatR(typeof(Create.Handler).Assembly);
+            services.AddTransient(typeof(IPipelineBehavior<Create.Command, Unit>), typeof(SendSQSMessageBehavior<Create.Command, Unit>));
+            services.AddTransient(typeof(IPipelineBehavior<Update.Command, Unit>), typeof(SendSQSMessageBehavior<Update.Command, Unit>));
+            services.AddTransient(typeof(IPipelineBehavior<Delete.Command, Unit>), typeof(SendSQSMessageBehavior<Delete.Command, Unit>));
             services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             Environment.SetEnvironmentVariable("AWS_ACCESS_KEY_ID", Configuration["AWS:AccessKey"]);
             Environment.SetEnvironmentVariable("AWS_SECRET_ACCESS_KEY", Configuration["AWS:SecretKey"]);
