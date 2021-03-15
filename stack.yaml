@@ -362,6 +362,8 @@ Resources:
     Properties:
       QueueName: AWSBookDemoQueue
     Type: 'AWS::SQS::Queue'
+  bookdemobucket:
+    Type: AWS::S3::Bucket
   AWSBookDemoLambda:
     Type: 'AWS::Serverless::Function'
     Properties:
