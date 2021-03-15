@@ -48,6 +48,7 @@ jobs:
            AWSDynamoSecretKey=${{ secrets.AWS_DYNAMO_SECRET_ACCESS_KEY }}
 
   deploy_lamda:
+    name: Deploy Lambda
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -66,7 +67,7 @@ jobs:
     - name: zip
       uses: montudor/action-zip@v0.1.0
       with:
-        args: zip -qq  ./bundle.zip ./Lambda/bin/Release/netcoreapp3.1
+        args: zip -qq -r -j ./bundle.zip ./Lambda/bin/Release/netcoreapp3.1
     - name: default deploy
       uses: appleboy/lambda-action@master
       with:
