@@ -365,6 +365,7 @@ Resources:
   AWSBookDemoLambda:
     Type: 'AWS::Serverless::Function'
     Properties:
+      FunctionName : AWSBookDemoLambda,
       Handler: 'Lambda::Lambda.Function::FunctionHandler'
       Runtime: dotnetcore3.1
       CodeUri: s3://codesampleforlambda/MyDotNetFunction-4ffd5f9b-6455-4679-b5bc-349c1e553ca6.zip
