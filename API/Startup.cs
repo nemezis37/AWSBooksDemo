@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.SQS;
 using Application.Books;
+using Infrastructure.Config;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -40,6 +41,7 @@ namespace API
             services.AddAWSService<IAmazonDynamoDB>();
             services.AddAWSService<IAmazonSQS>();
             services.AddTransient<IDynamoDBContext, DynamoDBContext>();
+            services.Configure<SQSOptions>(Configuration.GetSection(SQSOptions.SQSOptionsSectionName));
             
         }
 

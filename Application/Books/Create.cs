@@ -4,7 +4,9 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Domain;
+using Infrastructure.Config;
 using MediatR;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Application.Books
@@ -20,18 +22,20 @@ namespace Application.Books
         {
             private readonly IDynamoDBContext _dataContext;
             private readonly IAmazonSQS _amazonSqs;
+            private readonly SQSOptions _sqsConfig;
 
-            public Handler(IDynamoDBContext dataContext, IAmazonSQS amazonSqs)
+            public Handler(IDynamoDBContext dataContext, IAmazonSQS amazonSqs, IOptions<SQSOptions> sqsConfig)
             {
                 _dataContext = dataContext;
                 _amazonSqs = amazonSqs;
+                _sqsConfig = sqsConfig.Value;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 await _dataContext.SaveAsync(request.Book, cancellationToken);
-                var sendMessageRequest = new SendMessageRequest(@"https://sqs.us-east-1.amazonaws.com/236504649196/BookActionsSQS", $"Created: { JsonConvert.SerializeObject(request.Book)}");
-                var sendResult = await _amazonSqs.SendMessageAsync(sendMessageRequest, cancellationToken);
+                var sendMessageRequest = new SendMessageRequest(_sqsConfig.QueueUrl, $"Created: { JsonConvert.SerializeObject(request.Book)}");
+                await _amazonSqs.SendMessageAsync(sendMessageRequest, cancellationToken);
                 return Unit.Value;
             }
         }

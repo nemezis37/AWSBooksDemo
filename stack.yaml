@@ -473,7 +473,7 @@ Resources:
             - !Ref AWSDynamoSecretKey
             - |
               /g' /AWSBooksDemo/API/appsettings.json
-            - sed -i 's^QueueURL^
+            - sed -i 's^QueueUrl^
             - !Ref MyQueue
             - |
               ^g' /AWSBooksDemo/API/appsettings.json
