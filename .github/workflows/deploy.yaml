@@ -9,8 +9,8 @@ on:
 name: Deploy
 
 jobs:
-  amplify:
-    name: Deploy to Amplify Console
+  deploy_api:
+    name: Deploy API
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -46,4 +46,31 @@ jobs:
            InstanceType=t2.micro,
            AWSDynamoAccessKeyId=${{ secrets.AWS_DYNAMO_ACCESS_KEY_ID }},
            AWSDynamoSecretKey=${{ secrets.AWS_DYNAMO_SECRET_ACCESS_KEY }}
+
+  deploy_lamda:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core SDK ${{ matrix.dotnet }}
+      uses: actions/setup-dotnet@v1.7.2
+      with:
+        dotnet-version: '3.1.x'
+    - name: Change dir
+      run: cd Lambda
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: zip
+      uses: montudor/action-zip@v0.1.0
+      with:
+        args: zip -qq -r ./bundle.zip ./bin/Release/netcoreapp3.1
+    - name: default deploy
+      uses: appleboy/lambda-action@master
+      with:
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_region: ${{ github.event.inputs.region }}
+        function_name: fdghsfdhfgh
+        zip_file: bundle.zip
      
