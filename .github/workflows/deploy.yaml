@@ -55,12 +55,14 @@ jobs:
       uses: actions/setup-dotnet@v1.7.2
       with:
         dotnet-version: '3.1.x'
-    - name: Change dir
-      run: cd Lambda
     - name: Install dependencies
-      run: dotnet restore
+      run: |
+        cd Lambda
+        dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: |
+        cd Lambda
+        dotnet build --configuration Release --no-restore
     - name: zip
       uses: montudor/action-zip@v0.1.0
       with:
