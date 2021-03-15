@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::Serverless-2016-10-31'
 Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
@@ -361,6 +362,24 @@ Resources:
     Properties:
       QueueName: AWSBookDemoQueue
     Type: 'AWS::SQS::Queue'
+  AWSBookDemoLambda:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: 'Lambda::Lambda.Function::FunctionHandler'
+      Runtime: dotnetcore3.1
+      CodeUri: s3://codesampleforlambda/MyDotNetFunction-4ffd5f9b-6455-4679-b5bc-349c1e553ca6.zip
+      MemorySize: 256
+      Timeout: 30
+      Role: 'arn:aws:iam::236504649196:role/BookDemoLambdaRole'
+      Events:
+        SQS1:
+          Type: SQS
+          Properties:
+            Queue:
+              'Fn::GetAtt':
+                - MyQueue
+                - Arn
+            BatchSize: 10
   WebServerInstance:
     Type: 'AWS::EC2::Instance'
     Metadata:

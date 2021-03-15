@@ -9,8 +9,8 @@ on:
 name: Deploy
 
 jobs:
-  deploy_api:
-    name: Deploy API
+  deploy_env:
+    name: Deploy ENV
     runs-on: ubuntu-latest
     outputs:
       env-name: ${{ steps.env-name.outputs.environment }}
@@ -48,6 +48,7 @@ jobs:
            AWSDynamoSecretKey=${{ secrets.AWS_DYNAMO_SECRET_ACCESS_KEY }}
 
   deploy_lamda:
+    needs: deploy_env
     name: Deploy Lambda
     runs-on: ubuntu-latest
     steps:
