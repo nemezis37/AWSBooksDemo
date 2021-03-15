@@ -357,6 +357,10 @@ Mappings:
       HVM64: ami-01fee56b22f308154
       HVMG2: ami-0fe84a5b4563d8f27
 Resources:
+  MyQueue:
+    Properties:
+      QueueName: AWSBookDemoQueue
+    Type: 'AWS::SQS::Queue'
   WebServerInstance:
     Type: 'AWS::EC2::Instance'
     Metadata:
@@ -469,6 +473,10 @@ Resources:
             - !Ref AWSDynamoSecretKey
             - |
               /g' /AWSBooksDemo/API/appsettings.json
+            - sed -i 's^QueueURL^
+            - !Ref MyQueue
+            - |
+              ^g' /AWSBooksDemo/API/appsettings.json
             - sed -i 's/AWSRegion/
             - !Ref 'AWS::Region'
             - |
