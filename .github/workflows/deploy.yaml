@@ -44,9 +44,7 @@ jobs:
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
            KeyName=ec2ssh,
-           InstanceType=t2.micro,
-           AWSDynamoAccessKeyId=${{ secrets.AWS_DYNAMO_ACCESS_KEY_ID }},
-           AWSDynamoSecretKey=${{ secrets.AWS_DYNAMO_SECRET_ACCESS_KEY }}
+           InstanceType=t2.micro
 
   deploy_lamda:
     needs: deploy_env

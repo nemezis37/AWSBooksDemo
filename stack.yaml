@@ -6,12 +6,6 @@ Parameters:
     Type: 'AWS::EC2::KeyPair::KeyName'
     ConstraintDescription: must be the name of an existing EC2 KeyPair.
     Default: ec2ssh
-  AWSDynamoAccessKeyId:
-    Description: AWSDynamoAccessKeyId
-    Type: String
-  AWSDynamoSecretKey:
-    Description: AWSDynamoSecretKey
-    Type: String
   InstanceType:
     Description: WebServer EC2 instance type
     Type: String
@@ -362,10 +356,109 @@ Resources:
     Properties:
       QueueName: AWSBookDemoQueue
     Type: 'AWS::SQS::Queue'
+  BookTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Book
+      AttributeDefinitions:
+        - AttributeName: ISBN
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ISBN
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+  BookDemoAppUser:
+    Type: AWS::IAM::User
+    Properties:
+      Policies:
+      - PolicyName: giveaccesstoqueueonly
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'sqs:GetQueueUrl'
+                - 'sqs:ChangeMessageVisibility'
+                - 'sqs:ListDeadLetterSourceQueues'
+                - 'sqs:SendMessageBatch'
+                - 'sqs:PurgeQueue'
+                - 'sqs:ReceiveMessage'
+                - 'sqs:SendMessage'
+                - 'sqs:DeleteMessage'
+                - 'sqs:GetQueueAttributes'
+                - 'sqs:CreateQueue'
+                - 'sqs:ListQueueTags'
+                - 'sqs:ChangeMessageVisibilityBatch'
+                - 'sqs:SetQueueAttributes'
+              Resource: 
+                'Fn::GetAtt':
+                  - MyQueue
+                  - Arn  
+            - Effect: Allow
+              Action:
+                - 'dynamodb:GetItem'
+                - 'dynamodb:Query'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:DeleteItem'
+                - 'dynamodb:DescribeTable'
+                - 'dynamodb:Scan'
+              Resource:
+                'Fn::GetAtt':
+                  - BookTable
+                  - Arn
+  myaccesskey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName:
+        !Ref BookDemoAppUser        
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: BookDemoLambdaPolicy123
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:PutObject'
+                Resource: 'arn:aws:s3:::bookdemobucket/*'
+              - Effect: Allow
+                Action:
+                  - 'sqs:GetQueueUrl'
+                  - 'sqs:ChangeMessageVisibility'
+                  - 'sqs:ListDeadLetterSourceQueues'
+                  - 'sqs:SendMessageBatch'
+                  - 'sqs:PurgeQueue'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:SendMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueAttributes'
+                  - 'sqs:CreateQueue'
+                  - 'sqs:ListQueueTags'
+                  - 'sqs:ChangeMessageVisibilityBatch'
+                  - 'sqs:SetQueueAttributes'
+                Resource: 
+                  'Fn::GetAtt':
+                    - MyQueue
+                    - Arn
   bookdemobucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: bookdemobucket
+
   AWSBookDemoLambda:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -375,7 +468,10 @@ Resources:
       CodeUri: s3://codesampleforlambda/MyDotNetFunction-4ffd5f9b-6455-4679-b5bc-349c1e553ca6.zip
       MemorySize: 256
       Timeout: 30
-      Role: 'arn:aws:iam::236504649196:role/BookDemoLambdaRole'
+      Role:
+        'Fn::GetAtt':
+          - LambdaExecutionRole
+          - Arn
       Events:
         SQS1:
           Type: SQS
@@ -385,6 +481,21 @@ Resources:
                 - MyQueue
                 - Arn
             BatchSize: 10
+  BookdemobucketBucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: bookdemobucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - 's3:PutObject'
+            Effect: Allow
+            Resource: 'arn:aws:s3:::bookdemobucket/*'
+            Principal: 
+              AWS:
+               'Fn::GetAtt':
+                 - LambdaExecutionRole
+                 - Arn          
   WebServerInstance:
     Type: 'AWS::EC2::Instance'
     Metadata:
@@ -489,14 +600,14 @@ Resources:
               https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
             - |
               git clone https://github.com/nemezis37/AWSBooksDemo.git
-            - sed -i 's/DynamoDBBookAWSAccessKey/
-            - !Ref AWSDynamoAccessKeyId
+            - sed -i 's^DynamoDBBookAWSAccessKey^
+            - !Ref myaccesskey
             - |
-              /g' /AWSBooksDemo/API/appsettings.json
-            - sed -i 's/DynamoDBBookAWSSecretKey/
-            - !Ref AWSDynamoSecretKey
+              ^g' /AWSBooksDemo/API/appsettings.json
+            - sed -i 's^DynamoDBBookAWSSecretKey^
+            - !GetAtt myaccesskey.SecretAccessKey
             - |
-              /g' /AWSBooksDemo/API/appsettings.json
+              ^g' /AWSBooksDemo/API/appsettings.json
             - sed -i 's^QueueUrlReplaceText^
             - !Ref MyQueue
             - |
